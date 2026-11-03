@@ -1,3 +1,4 @@
+
 import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { posts, categories } from '../lib/posts.js'
@@ -8,6 +9,7 @@ import FeaturedPost from '../components/FeaturedPost.jsx'
 import PostRow from '../components/PostRow.jsx'
 import CategoryFilter from '../components/CategoryFilter.jsx'
 import SearchBar from '../components/SearchBar.jsx'
+import ShareButton from '../components/ShareButton.jsx'
 import NotFound from './NotFound.jsx'
 
 export default function Home() {
@@ -17,10 +19,14 @@ export default function Home() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
+
     return posts.filter(
       (p) =>
         (!category || p.category === category.name) &&
-        (!q || (p.title + ' ' + p.summary + ' ' + p.tags.join(' ')).toLowerCase().includes(q))
+        (!q ||
+          (p.title + ' ' + p.summary + ' ' + p.tags.join(' '))
+            .toLowerCase()
+            .includes(q))
     )
   }, [category, query])
 
@@ -42,14 +48,27 @@ export default function Home() {
         <SearchBar value={query} onChange={setQuery} />
       </div>
 
+      {/* Share Website / Category */}
+      <div className="mb-6">
+        <ShareButton
+          url={window.location.href}
+          title={category ? `${category.name} Articles` : site.title}
+          description={site.tagline}
+        />
+      </div>
+
       {filtered.length === 0 ? (
-        <p className="py-16 text-mute">No articles match. Try a different word or category.</p>
+        <p className="py-16 text-mute">
+          No articles match. Try a different word or category.
+        </p>
       ) : isFiltering ? (
         filtered.map((p) => <PostRow key={p.slug} post={p} />)
       ) : (
         <>
           <FeaturedPost post={lead} />
-          {rest.map((p) => <PostRow key={p.slug} post={p} />)}
+          {rest.map((p) => (
+            <PostRow key={p.slug} post={p} />
+          ))}
         </>
       )}
     </div>
